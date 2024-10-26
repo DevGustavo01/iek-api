@@ -58,20 +58,39 @@ app.get('/user', (req: Request, res: Response): void => {
 // ===========================================================
 
 
+
+// Função para gerar um novo ID automaticamente
+const generateNewId = (data: any[]): number => {
+  // Se houver dados, encontra o maior `id` e retorna `id + 1`
+  if (data.length > 0) {
+    const maxId = Math.max(...data.map((user) => user.id));
+    return maxId + 1;
+  }
+  // Caso não haja dados, começa o ID em 1
+  return 1;
+}
+
+
 // Rota POST para adicionar um novo registro
 app.post('/user', (req: Request, res: Response): void => {
   // Extrai `id`, `nome`, e `sobrenome` do corpo da requisição (`req.body`)
-  const { id, nome, sobrenome } = req.body;
+  const { nome, sobrenome } = req.body;
 
   // Carrega todos os dados existentes no "banco de dados" (o arquivo `database.json`)
   const data = loadDatabase();
 
-  // Middleware para verificar se o usuário já existe (mesmo `id` ou `nome`)
-  const userExists = data.some((user) => user.id === id || user.nome === nome);
+    // Middleware para verificar se o usuário já existe pelo `nome`
+  const userExists = data.some((user) => user.nome === nome);
   if (userExists) {
-    // Retorna um erro 409 (Conflict) caso o `id` ou `nome` já exista no banco de dados
-    res.status(409).json({ message: 'Usuário já existe com este ID ou Nome.' });
+    // Retorna um erro 409 (Conflict) caso o `nome` já exista no banco de dados
+    res.status(409).json({ message: 'Usuário já existe com este Nome.' })
+    return
   }
+
+
+   // Gera um novo ID para o novo usuário
+   const id = generateNewId(data)
+
 
   // Cria um novo objeto `newUser` com os dados fornecidos
   const newUser = { id, nome, sobrenome };
