@@ -1,16 +1,16 @@
-Claro, vamos elaborar uma documentação clara e prática para o uso de uma rota com uma chamada `fetch` em JavaScript para um desenvolvedor iniciante. Aqui está um exemplo básico e completo que pode servir como guia.
+Entendido! Vamos ajustar a documentação para refletir essa estrutura, onde a rota espera os campos `nome` e `sobrenome` no corpo da requisição. 
 
 ---
 
-## Documentação: Rota de Autenticação de Usuário (POST /api/auth/login)
+## Documentação: Rota de Cadastro de Usuário (POST /api/users/register)
 
 ### 1. Descrição
 
-Essa rota é usada para autenticar um usuário no sistema. Ela recebe as credenciais (e-mail e senha) e retorna um token de autenticação se os dados forem válidos. Esse token permite que o usuário acesse áreas protegidas do sistema.
+Essa rota é usada para cadastrar um novo usuário no sistema. Ela recebe o nome e o sobrenome do usuário e retorna uma mensagem de sucesso e um objeto com os dados do usuário cadastrado.
 
 ### 2. URL
 
-`POST /api/auth/login`
+`POST /api/users/register`
 
 ### 3. Requisição
 
@@ -20,19 +20,19 @@ Essa rota é usada para autenticar um usuário no sistema. Ela recebe as credenc
 
 #### 3.2. Corpo (Body)
 
-A requisição precisa de um JSON com os campos:
+A requisição precisa de um JSON com os seguintes campos:
 
-| Campo   | Tipo   | Obrigatório | Descrição                       |
-| ------- | ------ | ----------- | ------------------------------- |
-| email   | string | Sim         | E-mail do usuário               |
-| password| string | Sim         | Senha do usuário                |
+| Campo     | Tipo   | Obrigatório | Descrição                  |
+| --------- | ------ | ----------- | -------------------------- |
+| nome      | string | Sim         | Nome do usuário            |
+| sobrenome | string | Sim         | Sobrenome do usuário       |
 
 #### Exemplo de Corpo da Requisição
 
 ```json
 {
-  "email": "exemplo@dominio.com",
-  "password": "senha123"
+  "nome": "João",
+  "sobrenome": "Silva"
 }
 ```
 
@@ -40,41 +40,46 @@ A requisição precisa de um JSON com os campos:
 
 #### 4.1. Código de Status
 
-- **200 OK**: Autenticação bem-sucedida
-- **401 Unauthorized**: Credenciais inválidas
+- **201 Created**: Cadastro bem-sucedido
+- **400 Bad Request**: Dados inválidos ou ausentes
 
 #### 4.2. Corpo da Resposta
 
-Se a autenticação for bem-sucedida, a resposta incluirá um JSON com o token de autenticação:
+Se o cadastro for bem-sucedido, a resposta incluirá um JSON com uma mensagem de sucesso e os dados do usuário cadastrado:
 
-| Campo        | Tipo   | Descrição                               |
-| ------------ | ------ | --------------------------------------- |
-| token        | string | Token de autenticação                   |
+| Campo         | Tipo   | Descrição                       |
+| ------------- | ------ | ------------------------------- |
+| message       | string | Mensagem de confirmação         |
+| user          | object | Objeto contendo os dados do usuário cadastrado |
 
 #### Exemplo de Corpo da Resposta (Sucesso)
 
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "message": "Usuário cadastrado com sucesso.",
+  "user": {
+    "nome": "João",
+    "sobrenome": "Silva"
+  }
 }
 ```
 
 ### 5. Exemplo de Implementação com `fetch`
 
-Para usar a rota em uma aplicação JavaScript, utilize a função `fetch` da seguinte forma:
+Para usar essa rota em uma aplicação JavaScript, utilize a função `fetch` da seguinte forma:
 
 ```javascript
 // URL da API
-const url = 'https://exemplo.com/api/auth/login';
+const url = 'https://exemplo.com/api/users/register';
 
-// Dados de login do usuário
+// Dados de cadastro do usuário
 const data = {
-  email: 'exemplo@dominio.com',
-  password: 'senha123'
+  nome: 'João',
+  sobrenome: 'Silva'
 };
 
-// Função para autenticar o usuário
-async function loginUser() {
+// Função para cadastrar o usuário
+async function registerUser() {
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -89,36 +94,34 @@ async function loginUser() {
     }
 
     const result = await response.json();
-    console.log('Token de autenticação:', result.token);
-    
-    // Salvar o token no localStorage para uso posterior
-    localStorage.setItem('authToken', result.token);
+    console.log('Resposta da API:', result.message);
+    console.log('Dados do usuário:', result.user);
 
   } catch (error) {
-    console.error('Erro ao autenticar:', error);
+    console.error('Erro ao cadastrar usuário:', error);
   }
 }
 
-// Chamar a função para autenticar
-loginUser();
+// Chamar a função para cadastrar
+registerUser();
 ```
 
 ### 6. Explicação do Código
 
-- **URL da API**: Definimos a URL do endpoint de login.
-- **Dados do Usuário**: Criamos um objeto `data` contendo `email` e `password`.
+- **URL da API**: Definimos a URL do endpoint de cadastro.
+- **Dados do Usuário**: Criamos um objeto `data` contendo `nome` e `sobrenome`.
 - **Chamada `fetch`**:
   - Utilizamos o método `POST` e configuramos o cabeçalho `Content-Type` para `application/json`.
   - Transformamos `data` em uma string JSON com `JSON.stringify` e enviamos no corpo da requisição.
-  - Se a resposta não for `200 OK`, lançamos um erro com `throw new Error`.
-- **Armazenamento do Token**: Após obter o token de autenticação, armazenamos o token no `localStorage`, o que permite usá-lo em requisições futuras para áreas protegidas.
+  - Se a resposta não for `201 Created`, lançamos um erro com `throw new Error`.
+- **Tratamento da Resposta**: Após obter a resposta, exibimos a mensagem de sucesso e os dados do usuário cadastrado.
 
 ### 7. Boas Práticas
 
 - **Tratar Erros**: Sempre trate possíveis erros com `try-catch`.
 - **Usar HTTPS**: Verifique se a URL está usando `https` para segurança.
-- **Gerenciar o Token**: Sempre remova o token de `localStorage` no logout ou após expirar.
+- **Validação do Token**: Certifique-se de que apenas usuários autorizados possam acessar as rotas de cadastro.
 
 ---
 
-Essa documentação fornece uma visão completa do processo de chamada de uma rota de autenticação com `fetch`, adequada para um desenvolvedor iniciante.
+Essa documentação foi ajustada para atender à estrutura de `nome` e `sobrenome` no corpo da requisição.
